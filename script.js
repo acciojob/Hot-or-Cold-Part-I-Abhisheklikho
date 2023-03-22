@@ -1,46 +1,56 @@
-// generate a random number between 1 and 100
+// Generate a random number between 1 and 100
 const secretNumber = Math.floor(Math.random() * 100) + 1;
 
-// get references to the HTML elements
-const guessInput = document.getElementById("guess");
-const response = document.getElementById("respond");
-const button = document.querySelector("button");
+// Keep track of the user's previous guess and the difference between their previous guess and the secret number
+let previousGuess;
+let previousDifference;
 
-// function to handle the user's guess
+// Function to check the user's guess and update the response
 function checkGuess() {
-  // parse the user's guess from the input field
-  const guess = parseInt(guessInput.value);
+  // Get the user's guess from the input field
+  const guess = Number(document.getElementById('guess').value);
 
-  // validate the user's guess
+  // Clear the input field
+  document.getElementById('guess').value = '';
+
+  // If the guess is not a number or is outside the valid range, show an error message
   if (isNaN(guess) || guess < 1 || guess > 100) {
-    response.innerText = "Invalid guess. Please enter a number between 1 and 100.";
+    document.getElementById('response').textContent = 'Please enter a number between 1 and 100.';
     return;
   }
 
-  // provide feedback to the user based on the guess
-  if (guess === secretNumber) {
-    response.innerText = "Congratulations, you guessed the number!";
-    return;
-  } else if (guessInput.lastGuess !== undefined) {
-    const currentDiff = Math.abs(guess - secretNumber);
-    const prevDiff = Math.abs(guessInput.lastGuess - secretNumber);
-    if (currentDiff < prevDiff) {
-      response.innerText = "Getting hotter!";
-    } else {
-      response.innerText = "Getting colder!";
+  // If this is the user's first guess, simply tell them to guess higher or lower
+  if (!previousGuess) {
+    if (guess < secretNumber) {
+      document.getElementById('response').textContent = 'Guess higher.';
+    } else if (guess > secretNumber) {
+      document.getElementById('response').textContent = 'Guess lower.';
     }
-  }
-
-  // store the last guess for comparison in the next turn
-  guessInput.lastGuess = guess;
-
-  // provide a hint to the user whether to guess higher or lower in the next turn
-  if (guess < secretNumber) {
-    response.innerText += " Guess higher!";
   } else {
-    response.innerText += " Guess lower!";
+    // Calculate the difference between the current guess and the secret number
+    const currentDifference = Math.abs(guess - secretNumber);
+
+    // If the current guess is closer than the previous guess, tell the user they're getting hotter
+    if (previousDifference && currentDifference < previousDifference) {
+      if (guess < secretNumber) {
+        document.getElementById('response').textContent = 'Getting hotter. Guess higher.';
+      } else if (guess > secretNumber) {
+        document.getElementById('response').textContent = 'Getting hotter. Guess lower.';
+      }
+    } else {
+      // Otherwise, simply tell the user to guess higher or lower
+      if (guess < secretNumber) {
+        document.getElementById('response').textContent = 'Guess higher.';
+      } else if (guess > secretNumber) {
+        document.getElementById('response').textContent = 'Guess lower.';
+      }
+    }
+
+    // Update the previous guess and difference variables for the next iteration
+    previousGuess = guess;
+    previousDifference = currentDifference;
   }
 }
 
-// listen for button click and call the checkGuess function
-button.addEventListener("click", checkGuess);
+// Add an event listener to the button to call the checkGuess function when clicked
+document.getElementById('button').addEventListener('click', checkGuess);
